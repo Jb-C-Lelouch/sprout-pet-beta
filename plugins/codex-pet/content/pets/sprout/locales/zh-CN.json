@@ -1,0 +1,9 @@
+{
+  "name": "小芽",
+  "forms": {
+    "seedling": "幼芽",
+    "sprout": "灵芽",
+    "sapling": "灵木",
+    "star-tree": "星树"
+  }
+}

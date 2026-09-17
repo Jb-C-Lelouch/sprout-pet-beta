@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "type": "pet",
+  "id": "sprout",
+  "license": "MIT",
+  "author": "Jb-C-Lelouch",
+  "visual": {
+    "kind": "procedural",
+    "renderer": "sprout-v1",
+    "size": [
+      64,
+      64
+    ],
+    "anchor": [
+      32,
+      60
+    ],
+    "scale": 2,
+    "actions": {
+      "rest": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "frame_ms": 125,
+        "loop": true
+      },
+      "walk": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "frame_ms": 125,
+        "loop": true
+      },
+      "dig": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "frame_ms": 125,
+        "loop": true
+      },
+      "water": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "frame_ms": 125,
+        "loop": true
+      },
+      "fertilize": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "frame_ms": 125,
+        "loop": true
+      },
+      "harvest": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "frame_ms": 125,
+        "loop": true
+      },
+      "archive": {
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "frame_ms": 125,
+        "loop": true
+      },
+      "sleep": {
+        "frames": [
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "frame_ms": 333.3333333333333,
+        "loop": true
+      }
+    }
+  },
+  "forms": [
+    {
+      "id": "seedling",
+      "level": 1,
+      "rank": 0
+    },
+    {
+      "id": "sprout",
+      "level": 5,
+      "rank": 1
+    },
+    {
+      "id": "sapling",
+      "level": 15,
+      "rank": 2
+    },
+    {
+      "id": "star-tree",
+      "level": 30,
+      "rank": 3
+    }
+  ]
+}

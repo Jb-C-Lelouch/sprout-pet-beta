@@ -1,0 +1,11 @@
+{
+  "name": "Lettuce",
+  "latin": "Lactuca sativa",
+  "family": "Asteraceae",
+  "life": "Leaf crop",
+  "intro": "Lettuce includes heading and loose-leaf types. This garden models an expanding rosette, harvested before flowering.",
+  "observe": "Small leaves build into a layered rosette. The harvest is leaves, rather than fruit as in tomatoes.",
+  "habitat": "Likes fertile, moisture-retentive soil. Summer shade can help; hot, dry conditions encourage bolting.",
+  "fact": "Some loose-leaf types allow repeated picking. The game currently harvests the whole plant and sows again.",
+  "garden_name": "Lettuce"
+}

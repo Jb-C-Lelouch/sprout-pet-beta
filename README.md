@@ -2,7 +2,7 @@
 
 A quiet pixel garden that grows alongside your work in Codex.
 
-**Windows Beta · 0.1.0-beta.1**
+**Windows Beta · 0.1.0-beta.2**
 
 **English** · [简体中文](README.zh-CN.md)
 
@@ -54,6 +54,10 @@ This is an early Windows beta. Python is not bundled. Token collection depends o
 The hook reads local transcript records to extract session IDs and cumulative token counts. It does not copy conversation text into the garden save or upload it to a game server. See [privacy details](PRIVACY.md) and [release notes](RELEASE.md) (currently in Chinese).
 
 Report bugs in [Issues](https://github.com/Jb-C-Lelouch/sprout-pet-beta/issues), including your plugin, Windows, Python and Codex versions, steps to reproduce, and any environment-check error. Please do not upload chat transcripts or full saves.
+
+## Extending plants and artwork
+
+Plants, pet forms, animations, botanical profiles and scene resources use versioned content packs. Add a plant with JSON metadata, localized text and five PNG growth stages, without editing gameplay code. See the [content authoring guide](plugins/codex-pet/CONTENT.md).
 
 ## License
 

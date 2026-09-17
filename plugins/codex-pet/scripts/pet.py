@@ -126,7 +126,7 @@ def status(db):
     level = progress["level"]
     health = db.execute("SELECT message,updated FROM health WHERE id=1").fetchone()
     return {"name": "小芽", **progress,
-            "form": "幼芽" if level < 5 else "灵芽" if level < 15 else "灵木" if level < 30 else "星树",
+            "form": garden.catalog().form_name(level),
             "credited_tokens": tokens, "source": "local-time-and-token-energy", "growth":growth.summary(db), "energy":energy.summary(db),
             "connection": health[0] if health else "waiting for first hook",
             "last_event_utc": health[1] if health else None}

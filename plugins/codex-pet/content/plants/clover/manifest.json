@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "type": "plant",
+  "id": "clover",
+  "order": 0,
+  "license": "MIT",
+  "author": "Jb-C-Lelouch",
+  "zone": "garden",
+  "game": {
+    "level": 1,
+    "xp": 6,
+    "color": "#79aa6b",
+    "shape": "clover"
+  },
+  "visual": {
+    "kind": "procedural",
+    "renderer": "botanical-v1",
+    "variant": "clover",
+    "size": [
+      80,
+      96
+    ],
+    "anchor": [
+      40,
+      92
+    ],
+    "scale": 2,
+    "stages": [
+      "seed",
+      "sprout",
+      "growing",
+      "budding",
+      "mature"
+    ]
+  }
+}

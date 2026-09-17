@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "type": "plant",
+  "id": "tomato",
+  "order": 4,
+  "license": "MIT",
+  "author": "Jb-C-Lelouch",
+  "zone": "crops",
+  "game": {
+    "level": 3,
+    "xp": 30,
+    "color": "#d16f56",
+    "shape": "crop"
+  },
+  "visual": {
+    "kind": "procedural",
+    "renderer": "botanical-v1",
+    "variant": "tomato",
+    "size": [
+      80,
+      96
+    ],
+    "anchor": [
+      40,
+      92
+    ],
+    "scale": 2,
+    "stages": [
+      "seed",
+      "sprout",
+      "growing",
+      "budding",
+      "mature"
+    ]
+  }
+}

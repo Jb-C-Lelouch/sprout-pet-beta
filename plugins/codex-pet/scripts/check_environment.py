@@ -14,7 +14,9 @@ def check(smoke=False):
     root = tk.Tk()
     root.withdraw()
     try:
-        asset = Path(__file__).resolve().parents[1] / 'assets/pixel/garden.png'
+        from content_catalog import catalog, resource
+        scene = catalog().scenery['garden']
+        asset = resource(scene['directory'], scene['background']['file'])
         image = tk.PhotoImage(master=root, data=asset.read_bytes())
         if image.width() < 1:
             raise RuntimeError('Garden image is empty.')

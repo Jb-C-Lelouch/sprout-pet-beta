@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "type": "plant",
+  "id": "calendula",
+  "order": 7,
+  "license": "MIT",
+  "author": "Jb-C-Lelouch",
+  "zone": "garden",
+  "game": {
+    "level": 1,
+    "xp": 18,
+    "color": "#e7a34c",
+    "shape": "flower"
+  },
+  "visual": {
+    "kind": "procedural",
+    "renderer": "botanical-v1",
+    "variant": "calendula",
+    "size": [
+      80,
+      96
+    ],
+    "anchor": [
+      40,
+      92
+    ],
+    "scale": 2,
+    "stages": [
+      "seed",
+      "sprout",
+      "growing",
+      "budding",
+      "mature"
+    ]
+  }
+}

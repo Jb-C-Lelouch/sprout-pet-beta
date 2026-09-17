@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "type": "plant",
+  "id": "sunflower",
+  "order": 6,
+  "license": "MIT",
+  "author": "Jb-C-Lelouch",
+  "zone": "garden",
+  "game": {
+    "level": 3,
+    "xp": 30,
+    "color": "#ebbd49",
+    "shape": "flower"
+  },
+  "visual": {
+    "kind": "procedural",
+    "renderer": "botanical-v1",
+    "variant": "sunflower",
+    "size": [
+      80,
+      96
+    ],
+    "anchor": [
+      40,
+      92
+    ],
+    "scale": 2,
+    "stages": [
+      "seed",
+      "sprout",
+      "growing",
+      "budding",
+      "mature"
+    ]
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "type": "scenery",
+  "id": "garden",
+  "license": "MIT",
+  "author": "Jb-C-Lelouch",
+  "background": {
+    "file": "background.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "subsample": 2,
+    "position": [
+      -4,
+      -100
+    ]
+  },
+  "field": {
+    "renderer": "field-v1",
+    "position": [
+      324,
+      294
+    ]
+  }
+}

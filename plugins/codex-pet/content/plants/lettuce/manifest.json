@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "type": "plant",
+  "id": "lettuce",
+  "order": 9,
+  "license": "MIT",
+  "author": "Jb-C-Lelouch",
+  "zone": "crops",
+  "game": {
+    "level": 1,
+    "xp": 18,
+    "color": "#92b958",
+    "shape": "crop"
+  },
+  "visual": {
+    "kind": "procedural",
+    "renderer": "botanical-v1",
+    "variant": "lettuce",
+    "size": [
+      80,
+      96
+    ],
+    "anchor": [
+      40,
+      92
+    ],
+    "scale": 2,
+    "stages": [
+      "seed",
+      "sprout",
+      "growing",
+      "budding",
+      "mature"
+    ]
+  }
+}

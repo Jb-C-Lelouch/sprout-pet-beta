@@ -1,0 +1,11 @@
+{
+  "name": "Radish",
+  "latin": "Raphanus sativus",
+  "family": "Brassicaceae",
+  "life": "Root crop",
+  "intro": "This garden models a small, round, red-skinned radish. Other cultivars have very different shapes.",
+  "observe": "The swollen part below the leaves is harvested. The game exposes its shoulder to show progress.",
+  "habitat": "Keep soil moist and harvest promptly. Dry conditions can reduce eating quality.",
+  "fact": "Fast summer radishes can be ready in about four weeks. Winter types take longer.",
+  "garden_name": "Radish"
+}

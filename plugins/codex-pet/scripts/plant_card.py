@@ -2,7 +2,7 @@
 import webbrowser
 from garden_ui import Surface,rounded
 import botany
-from botany import GAME_NOTE
+from content_catalog import catalog
 from i18n import choose
 from contextlib import closing
 import sqlite3
@@ -30,7 +30,7 @@ class PlantCard(Surface):
             self.text(28,y,title,11)
             self.text(28,y+19,p[key],10,self.p['muted'],anchor='nw',width=458)
             y+=76
-        self.text(28,532,GAME_NOTE,9,self.p['muted'],anchor='nw',width=458)
+        self.text(28,532,catalog().game_note(self.app.settings['language']),9,self.p['muted'],anchor='nw',width=458)
         if p.get('extra_url'):
             self.button(26,570,226,'主要资料 · 打开原文',lambda:webbrowser.open(p['url']))
             self.button(264,570,220,'生命周期 · 打开原文',lambda:webbrowser.open(p['extra_url']))

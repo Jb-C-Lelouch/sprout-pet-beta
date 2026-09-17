@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "type": "plant",
+  "id": "daisy",
+  "order": 2,
+  "license": "MIT",
+  "author": "Jb-C-Lelouch",
+  "zone": "garden",
+  "game": {
+    "level": 5,
+    "xp": 36,
+    "color": "#f5d781",
+    "shape": "flower"
+  },
+  "visual": {
+    "kind": "procedural",
+    "renderer": "botanical-v1",
+    "variant": "daisy",
+    "size": [
+      80,
+      96
+    ],
+    "anchor": [
+      40,
+      92
+    ],
+    "scale": 2,
+    "stages": [
+      "seed",
+      "sprout",
+      "growing",
+      "budding",
+      "mature"
+    ]
+  }
+}

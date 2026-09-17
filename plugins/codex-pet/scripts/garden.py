@@ -6,18 +6,10 @@ import secrets
 import botany
 import rules
 
-PLANTS={
-    'clover':dict(name='三叶草',level=1,xp=6,color='#79aa6b',shape='clover'),
-    'mint':dict(name='薄荷',level=3,xp=18,color='#639c87',shape='mint'),
-    'daisy':dict(name='雏菊',level=5,xp=36,color='#f5d781',shape='flower'),
-    'carrot':dict(name='胡萝卜',level=1,xp=18,color='#e4a45f',shape='crop'),
-    'tomato':dict(name='番茄',level=3,xp=30,color='#d16f56',shape='crop'),
-    'cherry':dict(name='樱花树',level=10,xp=72,color='#e6a7b5',shape='tree'),
-    'sunflower':dict(name='向日葵',level=3,xp=30,color='#ebbd49',shape='flower'),
-    'calendula':dict(name='金盏花',level=1,xp=18,color='#e7a34c',shape='flower'),
-    'radish':dict(name='小萝卜',level=1,xp=12,color='#ce6875',shape='crop'),
-    'lettuce':dict(name='生菜',level=1,xp=18,color='#92b958',shape='crop'),
-}
+from content_catalog import catalog
+
+PLANTS = catalog().plant_rules()
+
 VISITORS={'butterfly':dict(name='蝴蝶',species=1),'sparrow':dict(name='麻雀',species=3)}
 
 
@@ -77,7 +69,7 @@ def snapshot(db):
         plots.append(dict(plot=p,species=species,name=plant['name'],earned_xp=earned,needed_xp=plant['xp'],
                           progress=ratio,stage='成熟' if ratio>=1 else '生长中' if ratio>=.25 else '萌芽'))
     return dict(level=level,rotation=bool(db.execute('SELECT enabled FROM garden_rotation').fetchone()[0]),archive=[dict(id=i,species=s) for i,s in db.execute('SELECT id,species FROM garden_archive ORDER BY id DESC')],events=[dict(id=i,action=a,species=s) for i,a,s in db.execute('SELECT id,action,species FROM garden_events ORDER BY id DESC LIMIT 5')],energy=energy.summary(db),inventory=dict(db.execute('SELECT species,amount FROM garden_inventory')),work=dict(zip(('next_wall','action'),db.execute('SELECT next_wall,action FROM garden_work WHERE id=1').fetchone())),revision=db.execute('SELECT revision FROM garden_meta WHERE id=1').fetchone()[0],plots=plots,
-                catalog=[dict(id=k,**v,botanical_name=botany.PROFILES[k]['latin'],unlocked=level>=v['level'],discovered=('plant',k) in collection) for k,v in PLANTS.items()],
+                catalog=[dict(id=k,**v,botanical_name=catalog().profile(k)['latin'],unlocked=level>=v['level'],discovered=('plant',k) in collection) for k,v in PLANTS.items()],
                 visitors=[dict(id=k,**v,discovered=('visitor',k) in collection) for k,v in VISITORS.items()])
 
 
@@ -94,7 +86,7 @@ def edit(db,action,plot,species=None,destination=None,expected=None):
             if not isinstance(species,str) or species not in PLANTS:raise ValueError('未知植物')
             if rules.progress_for_db(db)['level']<PLANTS[species]['level']:raise ValueError('尚未解锁这株植物')
             if row:raise ValueError('这块地已经种植，请先移动或移除原植物')
-            if (plot>6)!=(PLANTS[species]['shape']=='crop'):raise ValueError('请把农作物种在菜畦，观赏植物种在花园')
+            if (plot>6)!=(catalog().plants[species]['zone']=='crops'):raise ValueError('请把农作物种在菜畦，观赏植物种在花园')
             db.execute('INSERT INTO garden_plots VALUES(?,?,?)',(plot,species,growth.total_units(db)))
         elif action=='remove':
             if not row:raise ValueError('这是一块空地')
@@ -213,7 +205,7 @@ def perform_work(db,plan,now=None):
 
 def seed_pool(db,plot):
     level=rules.progress_for_db(db)['level']
-    return [s for s in PLANTS if (plot>6)==(PLANTS[s]['shape']=='crop') and level>=PLANTS[s]['level']]
+    return [s for s in PLANTS if (plot>6)==(catalog().plants[s]['zone']=='crops') and level>=PLANTS[s]['level']]
 
 
 def draw_species(db,plot):

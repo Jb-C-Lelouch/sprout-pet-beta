@@ -12,6 +12,8 @@
 
 ## 规则与使用
 
+素材与扩展：[English](CONTENT.md) · [简体中文](CONTENT.zh-CN.md)。植物、宠物、场景和双语资料统一位于 `content/`；新增普通 PNG 植物无需修改玩法代码。
+
 [GROWTH.md](GROWTH.md)：时间成长和精力。[GARDEN.md](GARDEN.md)：自动照料与种植。[BOTANY.md](BOTANY.md)：植物资料来源。[DESKTOP.md](DESKTOP.md)：窗口交互。
 
 命令：status、garden、plant、garden-move、garden-remove；hook供宿主回调使用。可以指定--data使用独立本地存档。

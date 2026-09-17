@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "type": "plant",
+  "id": "cherry",
+  "order": 5,
+  "license": "MIT",
+  "author": "Jb-C-Lelouch",
+  "zone": "garden",
+  "game": {
+    "level": 10,
+    "xp": 72,
+    "color": "#e6a7b5",
+    "shape": "tree"
+  },
+  "visual": {
+    "kind": "procedural",
+    "renderer": "botanical-v1",
+    "variant": "cherry",
+    "size": [
+      80,
+      96
+    ],
+    "anchor": [
+      40,
+      92
+    ],
+    "scale": 2,
+    "stages": [
+      "seed",
+      "sprout",
+      "growing",
+      "budding",
+      "mature"
+    ]
+  }
+}

@@ -53,8 +53,8 @@ class GardenScene(DesktopPet):
         if self.root.state() in ('withdrawn','iconic'):return
         c=self.canvas;c.delete('all')
         c.configure(bg='#364523' if os.name=='nt' else self.theme['bg'])
-        c.create_image(-4,-100,image=self.pixel_art.background,anchor='nw',tags='landscape')
-        c.create_image(324,294,image=self.pixel_art.field,anchor='nw',tags='landscape')
+        c.create_image(*self.pixel_art.background_position,image=self.pixel_art.background,anchor='nw',tags='landscape')
+        c.create_image(*self.pixel_art.field_position,image=self.pixel_art.field,anchor='nw',tags='landscape')
         for x,y,title in [(123,166,'花园'),(402,294,'菜畦')]:
             c.create_rectangle(x-26,y-9,x+26,y+9,fill='#82623e',outline='#51462d',tags='landscape')
             c.create_text(x,y,text=tr(title,self.settings['language']),font=('Microsoft YaHei UI',9),fill='#ffedc8',tags='landscape')
@@ -67,7 +67,8 @@ class GardenScene(DesktopPet):
     def draw_plant(self,p):
         x,y=SPOTS[p['plot']]
         image=self.pixel_art.plant(p['species'],p['progress'])
-        self.canvas.create_image(x,y+8,image=image,anchor='s',tags='plant'+str(p['plot']))
+        ax,ay=self.pixel_art.plant_anchor(p['species'])
+        self.canvas.create_image(x-ax,y-ay,image=image,anchor='nw',tags='plant'+str(p['plot']))
 
     def draw_pet(self):
         c=self.canvas;c.delete('avatar');c.delete('visitors');c.delete('bubble')
@@ -83,13 +84,10 @@ class GardenScene(DesktopPet):
                 self.image_source=self.image;self.small_image=self.image.subsample(2)
             c.create_image(x,py-5,image=self.small_image,tags='avatar')
         else:
-            phase=int(self.brain.elapsed*8)%8
-            if mode=='rest' and self.brain.elapsed>2:phase=8+int(self.brain.elapsed*3)%8
             left=self.brain.target[0]<x if mode=='walk' else True
             level=self.data['level'] if self.data else 1
-            rank=sum(level>=n for n in (5,15,30))
-            sprite=self.pixel_art.pet(mode,phase,self.settings['theme'],left,rank)
-            c.create_image(round(x/2)*2,round(y/2)*2+8,image=sprite,anchor='s',tags='avatar')
+            sprite,(ax,ay)=self.pixel_art.pet_frame(mode,self.brain.elapsed,self.settings['theme'],left,level)
+            c.create_image(round(x/2)*2-ax,round(y/2)*2-ay,image=sprite,anchor='nw',tags='avatar')
         if self.scene:
             for p in self.scene['plots']:
                 if p['species'] and SPOTS[p['plot']][1]>y:c.tag_raise('plant'+str(p['plot']))

@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "type": "plant",
+  "id": "carrot",
+  "order": 3,
+  "license": "MIT",
+  "author": "Jb-C-Lelouch",
+  "zone": "crops",
+  "game": {
+    "level": 1,
+    "xp": 18,
+    "color": "#e4a45f",
+    "shape": "crop"
+  },
+  "visual": {
+    "kind": "procedural",
+    "renderer": "botanical-v1",
+    "variant": "carrot",
+    "size": [
+      80,
+      96
+    ],
+    "anchor": [
+      40,
+      92
+    ],
+    "scale": 2,
+    "stages": [
+      "seed",
+      "sprout",
+      "growing",
+      "budding",
+      "mature"
+    ]
+  }
+}

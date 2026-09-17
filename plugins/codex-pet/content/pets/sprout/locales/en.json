@@ -1,0 +1,9 @@
+{
+  "name": "Sprout",
+  "forms": {
+    "seedling": "Seedling",
+    "sprout": "Sprout",
+    "sapling": "Sapling",
+    "star-tree": "Star tree"
+  }
+}

@@ -1,0 +1,20 @@
+[
+  {
+    "id": "main",
+    "url": "https://www.rhs.org.uk/vegetables/carrots/grow-your-own",
+    "label": {
+      "en": "RHS",
+      "zh-CN": "RHS · 胡萝卜栽培指南"
+    },
+    "checked_at": "2026-09-14"
+  },
+  {
+    "id": "extra",
+    "url": "https://www.gardenorganic.org.uk/expert-advice/how-to-grow/growing-guides/vegetables-herbs-guides/how-to-grow-carrot",
+    "label": {
+      "en": "Garden Organic · 胡萝卜生命周期",
+      "zh-CN": "Garden Organic · 胡萝卜生命周期"
+    },
+    "checked_at": "2026-09-14"
+  }
+]
