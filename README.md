@@ -58,6 +58,10 @@ The hook reads local transcript records to extract session IDs and cumulative to
 
 Report bugs in [Issues](https://github.com/Jb-C-Lelouch/sprout-pet-beta/issues), including your plugin, Windows, Python and Codex versions, steps to reproduce, and any environment-check error. Please do not upload chat transcripts or full saves.
 
+### License
+
+Released under the [MIT License](LICENSE). Commercial use, modification and redistribution are allowed, provided the copyright and license notice are retained. The software is provided without warranty. Unless separately noted, this applies to the project's code, documentation and bundled artwork, to the extent the copyright holder can license them. Referenced external sources retain their own terms.
+
 ## 简体中文
 
 ### 小芽是什么？
@@ -76,6 +80,10 @@ Report bugs in [Issues](https://github.com/Jb-C-Lelouch/sprout-pet-beta/issues),
 - **花园小访客。** 记录成熟植物种类，逐步解锁蝴蝶和麻雀访客。
 - **外观与桌面交互。** 点击小芽查看属性，通过手记查看成长、收藏和外观；支持中英文界面、配色主题、自定义 PNG 形象、拖动和窗口置顶。
 - **本地存档。** 花园进度保存在自己的电脑上，无需游戏服务器，不包含联机对战。
+
+### 许可证
+
+本项目采用 [MIT 许可证](LICENSE)，允许商业使用、修改和再分发，需保留版权及许可证声明；软件不提供担保。除另有标注外，授权适用于本项目代码、文档及随附美术素材中版权人有权授权的部分。引用的外部资料仍遵循其自身条款。
 
 ### 环境与安装
 
