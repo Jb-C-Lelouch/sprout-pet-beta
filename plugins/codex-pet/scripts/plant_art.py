@@ -8,19 +8,19 @@ def field_pixels():
     p=Pixels(130,48);rng=random.Random(93)
     outline=[(3,18),(9,12),(18,13),(25,8),(39,7),(47,4),(62,7),(73,5),(87,10),(98,9),(109,14),(116,13),(123,19),(122,26),(127,31),(120,35),(114,41),(99,40),(90,44),(76,42),(63,46),(49,43),(37,44),(26,39),(15,38),(12,32),(5,29),(7,23)]
     p.polygon([(x,y+1) for x,y in outline],'#58653b')
-    p.polygon(outline,'#765333')
-    p.polygon([(round(65+(x-65)*.94),round(25+(y-25)*.87)) for x,y in outline],'#88613c')
-    # Curved, broken cultivation marks rather than parallel ruler-straight rows.
-    for start in (16,24,33):
-        for x in range(14,117):
-            y=round(start+2*math.sin(x/22)+x/100)
-            if rng.random()<.73 and p.rows[y][x]:
-                p.rect(x,y,1,1,'#705032')
-                if p.rows[y+1][x]:p.rect(x,y+1,1,1,'#9b7548')
+    p.polygon(outline,'#60472f')
+    p.polygon([(round(65+(x-65)*.94),round(25+(y-25)*.87)) for x,y in outline],'#765536')
     mask=[row[:] for row in p.rows]
-    for _ in range(760):
+    for _ in range(240):
         x=rng.randrange(130);y=rng.randrange(48)
-        if mask[y][x]:p.rect(x,y,1,1,rng.choice(('#977046','#a17c50','#795536','#654b32')))
+        if mask[y][x]:
+            w=rng.randrange(3,8);h=rng.randrange(3,6)
+            for yy in range(y,min(48,y+h)):
+                for xx in range(x,min(130,x+w)):
+                    nx=(xx-x-w/2)/(w/2);ny=(yy-y-h/2)/(h/2)
+                    if mask[yy][xx] and nx*nx+ny*ny<.9:
+                        color='#9b794b' if nx<.2 and ny<-.2 else '#57412c' if ny>.4 else '#85633e'
+                        p.rect(xx,yy,1,1,color)
     # Turf breaks into the rim; scattered pebbles never form a continuous border.
     for x,y in outline[::2]:
         p.line(x-2,y,x+2,y,'#657a43');p.line(x,y,x-1,y-3,'#819651')
@@ -32,8 +32,8 @@ def field_pixels():
 
 def draw_plant(species,stage):
     from pixel_art import Pixels
-    p=Pixels(80,96);rng=random.Random(species+str(stage));cx=40;ground=92
-    dark='#405b36';green='#658947';light='#99b566';vein='#b5c680'
+    p=Pixels(80,96);rng=random.Random(species);cx=40;ground=92
+    dark='#3c5931';green='#63883c';light='#95b252';vein='#c0cd7b'
     scale=(0,.28,.52,.76,1)[stage]
     def stem(x,y,xx,yy,width=1):
         p.line(x,y,xx,yy,dark,width)
@@ -48,19 +48,33 @@ def draw_plant(species,stage):
                 pts.append((round(x+dx*t+nx*w*side),round(y+dy*t+ny*w*side)))
         p.polygon(pts,dark)
         inner=[(round(x+(a-x)*.86),round(y+(b-y)*.86)) for a,b in pts]
-        p.polygon(inner,color);p.line(x,y,xx,yy,light)
+        p.polygon(inner,color)
+        p.line(x,y,xx,yy,light)
+        if length>7:
+            for t in (.28,.48,.68):
+                vx=x+dx*t;vy=y+dy*t
+                for side in (-1,1):
+                    p.line(round(vx),round(vy),round(vx+dx*.14+nx*width*.65*side),round(vy+dy*.14+ny*width*.65*side),light if side<0 else '#4d722f')
+            p.line(round(x+dx*.35),round(y+dy*.35),round(x+dx*.85),round(y+dy*.85),vein)
         if serrated:
             for t in (.35,.6):
                 a=round(x+dx*t);b=round(y+dy*t)
                 for s in (-1,1):p.line(a,b,round(a+nx*width*s+dx*.12),round(b+ny*width*s+dy*.12),color)
     def flower(x,y,r,color,center):
-        for i in range(10):
-            angle=i*math.pi/5
+        petals=14 if r>=5 else 12
+        for i in range(petals):
+            angle=i*math.tau/petals
             xx=round(x+math.cos(angle)*r);yy=round(y+math.sin(angle)*r*.8)
+            p.line(x,y+1,xx,yy+1,'#a88b57' if color=='#f4eed6' else '#b98336',2 if r>4 else 1)
             p.line(x,y,xx,yy,color,2 if r>4 else 1)
-        p.oval(x-2,y-2,5,4,center);p.rect(x,y-1,1,1,'#f0d284')
+        p.oval(x-2,y-2,5,4,center);p.rect(x-1,y-2,2,1,'#f0d284');p.rect(x+1,y+1,1,1,'#9b7139')
     if stage==0:
-        p.line(37,92,43,92,'#82633d');p.rect(39,91,2,1,'#b79a65');return p
+        p.line(37,92,43,92,'#795a35');p.rect(38,91,1,1,'#a78652');p.rect(41,92,2,1,'#b09661');return p
+    if stage==1 and species!='clover':
+        stem(40,92,40,86)
+        width=1 if species=='carrot' else 2
+        leaf(40,87,34,81,width,green);leaf(40,87,46,79,width,light)
+        return p
     if species=='cherry':
         height=round(76*scale);top=ground-height
         p.line(cx,ground,cx-2,top+9,'#6d563b',max(2,round(5*scale)))
@@ -83,7 +97,8 @@ def draw_plant(species,stage):
             x=40+rng.randrange(-14,15);y=90-rng.randrange(0,5)
             stem(40,92,x,y);stem(x,y,x-1,y-4)
             for dx,dy in ((-3,-2),(2,-2),(0,-5)):
-                p.oval(x+dx-2,y+dy-2,5,4,dark);p.oval(x+dx-1,y+dy-2,3,3,green);p.rect(x+dx,y+dy-1,1,1,vein)
+                p.oval(x+dx-2,y+dy-2,5,4,dark);p.oval(x+dx-1,y+dy-2,3,3,green)
+                p.line(x+dx-1,y+dy-1,x+dx,y+dy,vein);p.rect(x+dx+1,y+dy-1,1,1,light)
         if stage>=3:
             for x,y in ((33,77),(47,81)):
                 stem(x,91,x+1,y);p.oval(x-1,y-2,5,4,light if stage==3 else '#e9e4ca')
@@ -91,20 +106,33 @@ def draw_plant(species,stage):
         return p
     if species in ('carrot','radish','lettuce','daisy'):
         if species=='carrot':
-            if stage>=3:p.oval(38,89,5,3,'#c28c48');p.rect(40,89,2,1,'#e4aa58')
-            for i in range(3+stage):
-                endx=40+round((i-(2+stage)/2)*3*scale);endy=92-round((13+(i%3)*5)*scale)
+            # Carrot leaves are divided twice: main rachis, pinnae, tiny pinnules.
+            shoots=[(-20,24), (18,27), (-11,34), (9,38), (-2,43), (-24,18), (24,20)]
+            count={2:3,3:5,4:7}[stage]
+            for i,(dx,height) in enumerate(shoots[:count]):
+                endx=40+round(dx*scale);endy=91-round(height*scale)
                 stem(40,91,endx,endy)
-                for t in (.35,.55,.75):
-                    x=round(40+(endx-40)*t);y=round(91+(endy-91)*t)
+                dx=endx-40;dy=endy-91;length=max(1,math.hypot(dx,dy));nx=-dy/length;ny=dx/length
+                for t in (.34,.48,.62,.76,.88):
+                    x=40+dx*t;y=91+dy*t
+                    spread=(1-t)*9*scale+1
                     for side in (-1,1):
-                        tipx=x+side*round(5*scale+1);tipy=y-3
-                        p.line(x,y,tipx,tipy,green);p.line(tipx-side,y-2,tipx,tipy-2,light)
+                        tipx=x+nx*spread*side+dx*.08;tipy=y+ny*spread*side+dy*.08
+                        p.line(round(x),round(y),round(tipx),round(tipy),green)
+                        for u in (.45,.8):
+                            bx=x+(tipx-x)*u;by=y+(tipy-y)*u
+                            p.line(round(bx),round(by),round(bx+dx/length*3),round(by+dy/length*3),light if i%2 else '#789b44')
+                            p.rect(round(bx),round(by)+1,1,1,dark)
+                        p.rect(round(tipx),round(tipy),1,1,vein)
+            if stage>=3:
+                p.oval(37,89,7,3,'#bb7736');p.rect(38,89,4,1,'#e6a651');p.rect(40,91,2,1,'#8e6230')
         elif species=='radish':
-            if stage>=3:p.oval(37,89,7,3,'#b75d6d');p.rect(38,89,3,1,'#dc8e91')
+            if stage>=3:p.oval(36,88,9,4,'#ac4e57');p.rect(37,88,5,2,'#d87878');p.rect(38,88,2,1,'#efa89a')
             for i in range(3+stage):
                 x=40+round((i-(2+stage)/2)*4*scale);y=91-round((10+(i%3)*4)*scale)
-                leaf(40,91,x,y,3,green if i%2 else light,True)
+                leaf(40,91,x,y,4,green if i%2 else light,True)
+                if stage>=3:
+                    leaf(40,89,round((40+x)/2)-3,round((91+y)/2)-2,2,green,True)
         elif species=='lettuce':
             for ring in range(3):
                 radius=max(3,round((16-ring*4)*scale))
@@ -115,6 +143,7 @@ def draw_plant(species,stage):
                     p.polygon([(40,91-ring*2),(x-w,y),(x-w+1,y-h+2),(x-2,y-h+1),(x,y-h),(x+3,y-h+2),(x+w,y-h+2),(x+w,y),(x+2,y+3)],dark)
                     p.polygon([(40,90-ring*2),(x-w+1,y-1),(x-w+2,y-h+3),(x,y-h+1),(x+w-1,y-h+3),(x+w-1,y),(x+1,y+2)],(green,light,'#b3c97b')[ring])
                     p.line(40,90-ring*2,x,y-h+3,'#8faa60' if ring==0 else '#d1d995')
+                    p.line(x-w+2,y-h+3,x-1,y-h+2,'#b7ce7e');p.line(x+2,y-h+3,x+w-1,y-h+4,'#a5c071')
         else:
             for i in range(7):
                 a=i*math.tau/7;leaf(40,92,40+round(math.cos(a)*10*scale),90+round(math.sin(a)*4)-2,2)
@@ -146,7 +175,8 @@ def draw_plant(species,stage):
             for side in (-1,1):
                 leaf(x,y,x+side*round((8 if species=='tomato' else 6)*scale+2),y-4,2 if species!='tomato' else 3,green if i%2 else light,True)
         if species=='mint' and stage==4:
-            for k in range(4):p.rect(tipx-1,tipy-k*2,3,1,'#b5a6c1')
+            for k in range(5):
+                p.rect(tipx-1,tipy-k*2,3,1,'#aa93ac');p.rect(tipx,tipy-k*2,1,1,'#d6bfcc')
         elif species=='calendula' and stage>=3:
             if stage==3:p.oval(tipx-2,tipy-3,4,4,green)
             else:flower(tipx,tipy,5,'#e9a34e','#b47b36')
@@ -155,7 +185,8 @@ def draw_plant(species,stage):
             if stage==2:flower(x,y,2,'#e4c467','#cda347')
             else:
                 for dx,dy in ((0,0),(-4,7)):
-                    p.oval(x+dx-2,y+dy,5,5,'#ba614b' if stage==4 else '#7b994d')
-                    p.rect(x+dx-1,y+dy+1,1,1,'#eca581' if stage==4 else light)
-                    p.line(x+dx-2,y+dy,x+dx+2,y+dy,dark)
+                    p.oval(x+dx-3,y+dy,7,6,'#9b4939' if stage==4 else '#4d7333')
+                    p.oval(x+dx-2,y+dy,5,4,'#d47549' if stage==4 else '#8fa652')
+                    p.rect(x+dx-1,y+dy+1,2,1,'#f0b16b' if stage==4 else vein)
+                    p.line(x+dx-2,y+dy,x+dx+2,y+dy,dark);p.rect(x+dx,y+dy-1,1,2,green)
     return p

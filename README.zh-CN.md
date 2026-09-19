@@ -1,8 +1,10 @@
 # 小芽桌面花园
 
+![beta.3 实际桌面花园](preview.png)
+
 一座陪你使用 Codex、随时间慢慢成长的像素桌面花园。
 
-**Windows 测试版 · 0.1.0-beta.2**
+**Windows 测试版 · 0.1.0-beta.3**
 
 [English](README.md) · **简体中文**
 

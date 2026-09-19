@@ -15,7 +15,7 @@
       32,
       60
     ],
-    "scale": 2,
+    "scale": 1,
     "actions": {
       "rest": {
         "frames": [
@@ -26,9 +26,15 @@
           4,
           5,
           6,
-          7
+          7,
+          6,
+          5,
+          4,
+          3,
+          2,
+          1
         ],
-        "frame_ms": 125,
+        "frame_ms": 180,
         "loop": true
       },
       "walk": {
