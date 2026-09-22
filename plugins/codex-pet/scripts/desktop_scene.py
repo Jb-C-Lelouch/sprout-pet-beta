@@ -93,12 +93,12 @@ class GardenScene(DesktopPet):
                 if p['species'] and SPOTS[p['plot']][1]>y:c.tag_raise('plant'+str(p['plot']))
             unlocked={v['id'] for v in self.scene['visitors'] if v['discovered']}
             if 'butterfly' in unlocked:
-                bx=250+math.sin(self.frame/75)*125;by=160+math.cos(self.frame/38)*16;wing=3+abs(math.sin(self.frame/3))*5
-                for dx in (-wing,wing):c.create_oval(bx+dx-wing,by-5,bx+dx+wing,by+5,fill='#d9a3b9',outline='',tags='visitors')
+                bx=250+math.sin(self.frame/75)*125
+                by=160+math.cos(self.frame/38)*16+math.sin(self.frame/9)*2
+                c.create_image(round(bx),round(by),image=self.pixel_art.butterfly(self.frame//2),tags='visitors')
             if 'sparrow' in unlocked:
                 sx=537+math.sin(self.frame/120)*18
-                c.create_oval(sx-10,325,sx+9,337,fill='#aa8c6b',outline='',tags='visitors')
-                c.create_oval(sx+3,319,sx+13,329,fill='#b69c78',outline='',tags='visitors')
+                c.create_image(round(sx),328,image=self.pixel_art.sparrow(self.frame//5),tags='visitors')
         hint=self.scene_error or self.time_error or (self.message if self.notice_until>time.monotonic() else '')
         if not hint and mode in ('dig','water','fertilize','harvest','archive'):
             hint={'dig':'正在播种','water':'正在浇水','fertilize':'正在施肥','harvest':'正在收获','archive':'正在收藏'}[mode]

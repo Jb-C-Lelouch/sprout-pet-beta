@@ -72,6 +72,22 @@ class PixelArt:
         if key not in self.cache:self.cache[key]=pet_pixels(mode,frame,theme,rank).photo(self.master,flip=not left)
         return self.cache[key]
 
+    def butterfly(self,frame):
+        from visitor_art import butterfly_pixels
+        pose=frame % 8
+        key=('butterfly',pose)
+        if key not in self.cache:
+            self.cache[key]=butterfly_pixels(pose).photo(self.master,scale=1)
+        return self.cache[key]
+
+    def sparrow(self,frame):
+        from visitor_art import sparrow_pixels
+        pose=frame % 8
+        key=('sparrow',pose)
+        if key not in self.cache:
+            self.cache[key]=sparrow_pixels(pose).photo(self.master,scale=1)
+        return self.cache[key]
+
     def _png(self,pack,filename,visual,flip=False):
         key=('png',str(pack['directory']),filename,visual['scale'],flip)
         if key not in self.cache:

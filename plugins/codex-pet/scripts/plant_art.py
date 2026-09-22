@@ -34,6 +34,8 @@ def draw_plant(species,stage):
     from pixel_art import Pixels
     p=Pixels(80,96);rng=random.Random(species);cx=40;ground=92
     dark='#3c5931';green='#63883c';light='#95b252';vein='#c0cd7b'
+    # Compressed garden scale: groundcover < rosettes < herbs < tall annuals < tree.
+    # Crop maturity is harvest foliage, not a second-year flowering stalk.
     scale=(0,.28,.52,.76,1)[stage]
     def stem(x,y,xx,yy,width=1):
         p.line(x,y,xx,yy,dark,width)
@@ -61,13 +63,15 @@ def draw_plant(species,stage):
                 a=round(x+dx*t);b=round(y+dy*t)
                 for s in (-1,1):p.line(a,b,round(a+nx*width*s+dx*.12),round(b+ny*width*s+dy*.12),color)
     def flower(x,y,r,color,center):
-        petals=14 if r>=5 else 12
-        for i in range(petals):
-            angle=i*math.tau/petals
-            xx=round(x+math.cos(angle)*r);yy=round(y+math.sin(angle)*r*.8)
-            p.line(x,y+1,xx,yy+1,'#a88b57' if color=='#f4eed6' else '#b98336',2 if r>4 else 1)
-            p.line(x,y,xx,yy,color,2 if r>4 else 1)
-        p.oval(x-2,y-2,5,4,center);p.rect(x-1,y-2,2,1,'#f0d284');p.rect(x+1,y+1,1,1,'#9b7139')
+        # Discrete tapered petals leave a readable rim around the flower centre.
+        for i in range(12):
+            angle=i*math.tau/12
+            dx=math.cos(angle);dy=math.sin(angle)*.85
+            xx=round(x+dx*r);yy=round(y+dy*r)
+            p.line(x,y,xx,yy+1,'#b88646' if color!='#f4eed6' else '#b8ac8a',2)
+            p.line(x,y,xx,yy,color,2)
+            p.rect(xx,yy,1,1,'#fff4d9' if color=='#f4eed6' else '#f8cf7b')
+        p.oval(x-1,y-1,3,3,center);p.rect(x-1,y-1,1,1,'#f2d47c')
     if stage==0:
         p.line(37,92,43,92,'#795a35');p.rect(38,91,1,1,'#a78652');p.rect(41,92,2,1,'#b09661');return p
     if stage==1 and species!='clover':
@@ -76,22 +80,42 @@ def draw_plant(species,stage):
         leaf(40,87,34,81,width,green);leaf(40,87,46,79,width,light)
         return p
     if species=='cherry':
-        height=round(76*scale);top=ground-height
-        p.line(cx,ground,cx-2,top+9,'#6d563b',max(2,round(5*scale)))
-        p.line(cx+2,ground-2,cx+1,top+16,'#98744c',2)
-        for i,(dx,dy) in enumerate(((-23,18),(21,21),(-13,5),(12,3),(0,-3))):
-            x=cx+round(dx*scale);y=top+round((dy+8)*scale)
-            p.line(cx,ground-round(height*.4),x,y,'#70583c',max(1,round(2*scale)))
-            radius=max(3,round(14*scale))
-            for _ in range(round(24*scale)+3):
-                a=rng.random()*math.tau;r=radius*math.sqrt(rng.random())
-                px=round(x+math.cos(a)*r);py=round(y+math.sin(a)*r*.64)
-                if stage==4:
-                    p.oval(px-3,py-2,7,5,rng.choice(('#c48e99','#dba4ad','#e8b9bd','#efc7c7')))
-                    if rng.random()<.6:
-                        p.rect(px-1,py,3,1,'#f9ded4');p.rect(px,py-1,1,3,'#f9ded4');p.rect(px,py,1,1,'#c6976e')
-                else:leaf(px,py,px+rng.choice((-4,4)),py-3,2,rng.choice((dark,green,light)))
-        p.line(37,92,44,92,'#766040');return p
+        # A spreading crown supported by low forks, with stable lobes at every age.
+        height=round(84*scale);top=ground-height
+        def point(dx,dy):return (cx+round(dx*scale),top+round(dy*scale))
+        def branch(points,color,width):
+            for a,b in zip(points,points[1:]):p.line(*point(*a),*point(*b),color,max(1,round(width*scale)))
+        branch([(0,84),(-2,64),(0,46),(-7,29)],'#644c3c',6)
+        branch([(-1,82),(-3,64),(-1,47),(-8,30)],'#ac8256',2)
+        for pts in [[(0,61),(-13,48),(-24,32)],[(-1,48),(15,37),(25,20)],[(0,43),(3,24),(-2,12)]]:
+            branch(pts,'#6d503e',3);branch(pts,'#97714c',1)
+        for dx,dy in [(-4,80),(-2,69),(0,59)]:
+            x,y=point(dx,dy);p.line(x,y,x+2,y,'#604a39')
+        lobes=[(-19,31,15,13),(18,28,16,14),(-7,15,19,14),
+               (11,13,17,12),(-25,22,10,11),(27,23,9,10),
+               (0,30,19,16),(-15,40,13,11),(17,39,13,11),(-1,44,14,10)]
+        palette=('#a66d86','#be8097','#d798ab','#e8afbb','#f3c9cf','#ffe3dd') if stage==4 else ('#425b36','#597441','#718c4c','#8ba45d','#a7b975','#c5cd91')
+        for i,(dx,dy,rx,ry) in enumerate(lobes):
+            x,y=point(dx,dy);rx=max(3,round(rx*scale));ry=max(3,round(ry*scale))
+            # Overlapping scallops establish connected masses before blossom texture.
+            p.oval(x-rx,y-ry,rx*2,ry*2,palette[0])
+            p.oval(x-rx+1,y-ry,rx*2-2,ry*2-3,palette[2])
+            p.oval(x-rx+2,y-ry,rx+max(2,rx//2),ry+max(2,ry//2),palette[3])
+            for j in range(22):
+                ang=rng.random()*math.tau;r=math.sqrt(rng.random())*.94
+                xx=round(x+math.cos(ang)*rx*r);yy=round(y+math.sin(ang)*ry*r)
+                tone=4 if yy<y-2 else 2 if xx<x else 1
+                w=max(2,round((3+rng.randrange(3))*scale))
+                p.oval(xx-w//2,yy-w//2,w+1,w,palette[tone])
+                if stage==4 and j%3==0:
+                    p.rect(xx,yy-1,1,3,palette[5]);p.rect(xx-1,yy,3,1,palette[4])
+                    p.rect(xx,yy,1,1,'#d7a275')
+                elif stage==3 and j%4==0:p.rect(xx,yy,2,2,'#d5a1aa')
+        p.line(35,92,46,92,'#766040')
+        if stage==4:
+            for x,y in ((29,91),(34,89),(48,91),(52,90)):
+                p.rect(x,y,2,1,'#e6b3be')
+        return p
     if species=='clover':
         for i in range(2+stage*3):
             x=40+rng.randrange(-14,15);y=90-rng.randrange(0,5)
@@ -107,7 +131,7 @@ def draw_plant(species,stage):
     if species in ('carrot','radish','lettuce','daisy'):
         if species=='carrot':
             # Carrot leaves are divided twice: main rachis, pinnae, tiny pinnules.
-            shoots=[(-20,24), (18,27), (-11,34), (9,38), (-2,43), (-24,18), (24,20)]
+            shoots=[(-15,18), (14,21), (-8,26), (7,29), (-2,33), (-18,14), (18,15)]
             count={2:3,3:5,4:7}[stage]
             for i,(dx,height) in enumerate(shoots[:count]):
                 endx=40+round(dx*scale);endy=91-round(height*scale)
@@ -154,24 +178,48 @@ def draw_plant(species,stage):
                     if stage==3:p.oval(x-1,y-2,3,4,light)
                     else:flower(x,y,4,'#f4eed6','#d5ad52')
         return p
-    height=round({'mint':32,'tomato':46,'sunflower':59,'calendula':28}[species]*scale)
+    height=round({'mint':32,'tomato':54,'sunflower':68,'calendula':34}[species]*scale)
     top=ground-height
     if species=='sunflower':
-        stem(40,92,39,top,2)
+        headx=37;heady=top+2
+        stem(40,92,41,top+18,3 if stage>=3 else 2)
+        stem(41,top+18,headx,heady,3 if stage>=3 else 2)
         for i in range(2+stage):
-            y=88-i*max(3,height//(3+stage));side=-1 if i%2 else 1
-            leaf(40,y,40+side*round(12*scale),y-7,4 if stage>2 else 2,green,True)
-        if stage==3:p.oval(36,top-3,8,7,green)
+            y=87-i*max(4,height//(3+stage));side=-1 if i%2 else 1
+            reach=round((16-i*.9)*scale);tipx=40+side*reach;tipy=y-4
+            stem(40,y,40+side*4,y-3)
+            # Broad heart-shaped leaves with pointed tips and branching veins.
+            base=40+side*3;w=max(3,round((7-i*.35)*scale))
+            p.polygon([(base,y-2),(base+side*3,y-w),(tipx-side*3,y-w),(tipx,tipy),(tipx-side*3,y+3),(base+side*4,y+2)],dark)
+            p.polygon([(base+side,y-2),(base+side*4,y-w+1),(tipx-side*3,y-w+1),(tipx-side,tipy),(tipx-side*4,y+1)],green)
+            p.line(base,y-2,tipx,tipy,light)
+            p.line(base+side*5,y-2,base+side*7,y-w+1,light)
+        if stage==3:
+            p.oval(headx-5,heady-6,11,12,dark)
+            p.oval(headx-4,heady-6,8,9,green)
+            for dx in (-3,0,3):p.line(headx,heady+4,headx+dx,heady-4,light)
         if stage==4:
-            flower(39,top,8,'#e8bd51','#765333');p.oval(35,top-4,9,8,'#735039')
-            for x,y in ((37,-2),(40,-1),(38,1),(41,2)):p.rect(x,top+y,1,1,'#b99653')
+            for i in range(18):
+                angle=i*math.tau/18;dx=math.cos(angle);dy=math.sin(angle)*.9
+                nx=-math.sin(angle);ny=math.cos(angle)
+                def at(r,w=0):return (round(headx+dx*r+nx*w),round(heady+dy*r+ny*w))
+                p.polygon([at(5,-2),at(10,-2),at(14),at(10,2),at(5,2)],'#bc7e32')
+                p.polygon([at(6,-1),at(10,-1),at(13),at(10,1),at(6,1)],'#edb94e')
+                p.line(*at(8),*at(12),'#ffe091')
+            p.oval(headx-7,heady-6,15,13,'#654735')
+            p.oval(headx-6,heady-5,12,10,'#94683b')
+            p.oval(headx-4,heady-3,9,8,'#765237')
+            for yy in range(-4,5,2):
+                for xx in range(-5,6,2):
+                    if xx*xx/36+yy*yy/25<1:
+                        p.rect(headx+xx+(yy%3==0),heady+yy,1,1,'#c99b56' if yy<0 else '#aa7b43')
         return p
     # Multiple unequal stems and pinnate/paired leaves replace the generic sprout.
     for j in range(1 if stage==1 else 3):
         tipx=40+(j-1)*round(10*scale);tipy=top+j*3
         stem(40,92,tipx,tipy,2 if species=='tomato' else 1)
-        for i in range(2+stage):
-            t=(i+1)/(3+stage);x=round(40+(tipx-40)*t);y=round(92+(tipy-92)*t)
+        for i in range(2+stage//2):
+            t=(i+1)/(3+stage//2);x=round(40+(tipx-40)*t);y=round(92+(tipy-92)*t)
             for side in (-1,1):
                 leaf(x,y,x+side*round((8 if species=='tomato' else 6)*scale+2),y-4,2 if species!='tomato' else 3,green if i%2 else light,True)
         if species=='mint' and stage==4:

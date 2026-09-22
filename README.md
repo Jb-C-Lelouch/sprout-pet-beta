@@ -1,10 +1,10 @@
 # Sprout Pet
 
-![Actual desktop garden in beta.3](preview.png)
+![Actual desktop garden in beta.4](preview.png)
 
 A quiet pixel garden that grows alongside your work in Codex.
 
-**Windows Beta · 0.1.0-beta.3**
+**Windows Beta · 0.1.0-beta.4**
 
 **English** · [简体中文](README.zh-CN.md)
 
