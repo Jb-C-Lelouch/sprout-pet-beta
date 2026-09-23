@@ -77,7 +77,7 @@ def draw_pet(mode,frame,theme,rank=0):
                         a=-math.pi/2+i*math.pi/5;radius=r if i%2==0 else r*.45
                         pts.append((round(x+math.cos(a)*radius),round(y+offset+math.sin(a)*radius)))
                     poly(pts,'#e9bf59');rect(x,y+offset,1,1,'#fff2bf')
-    sleeping=mode=='rest' and frame>=8
+    sleeping=mode=='sleep' or (mode=='rest' and frame>=8)
     if sleeping:
         oy=1 if f in (3,4,5) else 0
         round_volume([(15,46),(19,39),(27,36),(40,37),(49,43),(52,51),(48,56),(21,57),(15,53)],(33,47),(20,12))
@@ -101,7 +101,7 @@ def draw_pet(mode,frame,theme,rank=0):
     if rank>=2:rect(42,27,2,2,'#e9c779');rect(44,29,1,2,cream)
     # Eyelids, eye highlights, cheek freckles and a tiny offset mouth.
     for x in (25,40):
-        if mode=='rest' and f==7:line(x,37,x+1,36,ink);line(x+1,36,x+3,37,ink)
+        if mode in ('petting','stretch') or (mode=='eat' and f%3==0) or (mode=='rest' and f==7):line(x,37,x+1,36,ink);line(x+1,36,x+3,37,ink)
         else:
             rect(x,34,3,5,ink);rect(x,34,1,2,'#fff8dd');rect(x+2,38,1,1,edge)
         rect(x-3,40,6,2,'#e4ad91');rect(x-2,39,4,1,'#edc0a2');rect(x-1,41,3,1,'#d89b7d')
@@ -111,6 +111,24 @@ def draw_pet(mode,frame,theme,rank=0):
     poly([(18,42),(21,45),(handx+5,handy+4),(handx,handy+4),(handx-2,handy),(handx,handy-3)],ink)
     poly([(18,43),(20,44),(handx+4,handy+2),(handx,handy+2),(handx,handy-1)],skin)
     rect(handx,handy-1,3,1,cream)
+    if mode=='petting':
+        for hx,hy in ((10,18),(53,24)):
+            hy-=f//2
+            p.polygon([(hx,hy+1),(hx+2,hy-1),(hx+4,hy+1),(hx+6,hy-1),(hx+8,hy+1),(hx+4,hy+6)],'#d9919b')
+    elif mode=='stretch':
+        for hx in (10,53):
+            p.line(hx,37,hx-2,29-wave,ink,3);p.line(hx,36,hx-2,29-wave,skin,2)
+    elif mode=='look':
+        p.rect(24,34,5,6,skin);p.rect(39,34,5,6,skin)
+        for hx in (25,40):
+            p.rect(hx+(1 if f<4 else -1),34,3,5,ink);p.rect(hx+(1 if f<4 else -1),34,1,1,cream)
+    elif mode=='eat':
+        lift=1 if f%2 else 0
+        p.polygon([(25,45-lift),(35,43-lift),(40,46-lift),(38,52),(29,54),(24,50)],'#8b613e')
+        p.polygon([(26,45-lift),(35,44-lift),(38,46-lift),(35,50),(28,51)],'#dfae67')
+        p.oval(22,46,7,5,skin);p.oval(37,45,7,5,skin)
+        p.rect(32,42,3,1+f%2,ink)
+        if f in (3,4):p.rect(30,54,1,1,'#d8af6e');p.rect(36,56,1,1,'#d8af6e')
     # Tool silhouettes, contents and particles each follow an eight-pose cycle.
     if mode=='dig':
         tilt=(4,2,0,-2,-3,-1,2,4)[f];tipy=52+bend//2

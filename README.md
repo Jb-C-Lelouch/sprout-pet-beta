@@ -4,7 +4,7 @@
 
 A quiet pixel garden that grows alongside your work in Codex.
 
-**Windows Beta · 0.1.0-beta.4**
+**Windows Beta · 0.1.0-beta.5**
 
 **English** · [简体中文](README.zh-CN.md)
 
@@ -14,6 +14,7 @@ Sprout Pet is a local Codex plugin with a desktop garden and a round little comp
 
 ## Main features
 
+- **Companion interactions.** Pet Xiaoya, watch idle stretches and naps, and feed one harvested crop for a snack animation. Switch to a small draggable pet using the right-click menu; time growth continues while automatic gardening pauses.
 - **A living pixel garden.** Ornamental plants, a vegetable patch and a meadow share one continuous 2D scene. Your pet walks to plants and animates its gardening actions.
 - **Idle and offline growth.** Earn 6 XP per hour with the desktop garden running, or 3 XP per offline hour for up to 12 hours per absence. The current level cap is 30, with four visual stages.
 - **Token-powered care.** Every 1,000 newly credited tokens adds 1 energy, up to 100. Energy lets Xiaoya sow, water, fertilize and harvest. Plants continue growing without energy and do not wither.
@@ -51,7 +52,7 @@ Double-click `plugins/codex-pet/Check-Environment.cmd` to check Python/Tk. `Open
 
 Refresh the marketplace with `codex plugin marketplace upgrade sprout-beta`, check for the plugin update in Codex, restart the garden and open a new Codex task. Right-click the garden to exit. Saves are kept in `.codex-pet` under your user home directory; close the garden before backing up that folder. Uninstalling the plugin leaves the save in place.
 
-This is an early Windows beta. Python is not bundled. Token collection depends on the host's local transcript format and may vary by Codex version; time-based growth still works when usage cannot be read. Automatic gardening runs while the desktop garden is open, not during offline settlement. Harvest inventory currently records quantities only; there is no trading or currency system. Clean-machine installation and real host hook compatibility still need broader testing.
+This is an early Windows beta. Python is not bundled. Token collection depends on the host's local transcript format and may vary by Codex version; time-based growth still works when usage cannot be read. Automatic gardening runs while the desktop garden is open, not during offline settlement. Harvested crops can be fed to Xiaoya; there is no trading or currency system. Clean-machine installation and real host hook compatibility still need broader testing.
 
 The hook reads local transcript records to extract session IDs and cumulative token counts. It does not copy conversation text into the garden save or upload it to a game server. See [privacy details](PRIVACY.md) and [release notes](RELEASE.md) (currently in Chinese).
 

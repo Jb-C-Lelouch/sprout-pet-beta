@@ -260,3 +260,14 @@ def restore_plant(db,identity):
         db.execute('DELETE FROM garden_archive WHERE id=?',(identity,));log_event(db,'restore',species)
         db.execute('UPDATE garden_meta SET revision=revision+1')
         return plot
+
+
+def feed(db,species):
+    """Consume one harvested crop atomically; feeding never creates XP or energy."""
+    if species not in PLANTS or catalog().plants[species]['zone']!='crops':
+        raise ValueError('Choose a harvested crop')
+    with db:
+        result=db.execute('UPDATE garden_inventory SET amount=amount-1 WHERE species=? AND amount>0',(species,))
+        if result.rowcount!=1:return False
+        log_event(db,'feed',species)
+    return True

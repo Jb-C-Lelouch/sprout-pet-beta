@@ -17,6 +17,7 @@ from garden_ui import rounded,GardenPanel,GardenMenu
 
 class GardenScene(DesktopPet):
     def __init__(self,root,directory):
+        self.interaction=None;self.interaction_start=0.;self.interaction_until=0.;self.next_idle=time.monotonic()+15;self.idle_turn=0;self.snack_panel=None
         self.brain=Gardener();self.scene=None;self.proposal=None;self.auto_enabled=True
         self.card_open=False;self.last_frame=time.monotonic();self.small_image=None;self.image_source=None
         self.scene_error='';self.hint_until=time.monotonic()+14
@@ -27,10 +28,10 @@ class GardenScene(DesktopPet):
         root.unbind('<Escape>');root.bind('<Escape>',self.escape)
 
     def layout(self):
-        self.width,self.height=760,420
-        x=max(0,min(self.settings.get('x',self.root.winfo_screenwidth()-790),self.root.winfo_screenwidth()-760))
-        y=max(0,min(self.settings.get('y',self.root.winfo_screenheight()-465),self.root.winfo_screenheight()-420))
-        self.root.geometry(f'760x420+{x}+{y}')
+        self.width,self.height=(180,150) if self.settings.get('compact') else (760,420)
+        x=max(0,min(self.settings.get('x',self.root.winfo_screenwidth()-790),self.root.winfo_screenwidth()-self.width))
+        y=max(0,min(self.settings.get('y',self.root.winfo_screenheight()-465),self.root.winfo_screenheight()-self.height))
+        self.root.geometry(f'{self.width}x{self.height}+{x}+{y}')
         if os.name=='nt':self.root.attributes('-transparentcolor','#364523')
         self.render()
 
@@ -53,6 +54,8 @@ class GardenScene(DesktopPet):
         if self.root.state() in ('withdrawn','iconic'):return
         c=self.canvas;c.delete('all')
         c.configure(bg='#364523' if os.name=='nt' else self.theme['bg'])
+        if self.settings.get('compact'):
+            self.draw_pet();return
         c.create_image(*self.pixel_art.background_position,image=self.pixel_art.background,anchor='nw',tags='landscape')
         c.create_image(*self.pixel_art.field_position,image=self.pixel_art.field,anchor='nw',tags='landscape')
         for x,y,title in [(123,166,'花园'),(402,294,'菜畦')]:
@@ -73,8 +76,10 @@ class GardenScene(DesktopPet):
     def draw_pet(self):
         c=self.canvas;c.delete('avatar');c.delete('visitors');c.delete('bubble')
         if not hasattr(self,'settings'):return
-        x,y=self.brain.x,self.brain.y
-        mode=self.brain.mode
+        compact=self.settings.get('compact',False)
+        x,y=(90,112) if compact else (self.brain.x,self.brain.y)
+        active=self.interaction if time.monotonic()<self.interaction_until else None
+        mode=active or self.brain.mode
         if mode=='finish':mode='rest'
         bob=math.sin(self.frame/(2 if mode=='walk' else 10))*(2 if mode=='walk' else 1)
         c.create_oval(x-21,y-4,x+21,y+6,fill=self.colors()[1],outline='',tags='avatar')
@@ -86,9 +91,9 @@ class GardenScene(DesktopPet):
         else:
             left=self.brain.target[0]<x if mode=='walk' else True
             level=self.data['level'] if self.data else 1
-            sprite,(ax,ay)=self.pixel_art.pet_frame(mode,self.brain.elapsed,self.settings['theme'],left,level)
+            sprite,(ax,ay)=self.pixel_art.pet_frame(mode,time.monotonic()-self.interaction_start if active else self.brain.elapsed,self.settings['theme'],left,level)
             c.create_image(round(x/2)*2-ax,round(y/2)*2-ay,image=sprite,anchor='nw',tags='avatar')
-        if self.scene:
+        if self.scene and not compact:
             for p in self.scene['plots']:
                 if p['species'] and SPOTS[p['plot']][1]>y:c.tag_raise('plant'+str(p['plot']))
             unlocked={v['id'] for v in self.scene['visitors'] if v['discovered']}
@@ -99,6 +104,9 @@ class GardenScene(DesktopPet):
             if 'sparrow' in unlocked:
                 sx=537+math.sin(self.frame/120)*18
                 c.create_image(round(sx),328,image=self.pixel_art.sparrow(self.frame//5),tags='visitors')
+        if compact:
+            c.create_text(90,132,text=choose(self,'右键：花园 / 投喂','Right-click: garden / snack'),font=('Microsoft YaHei UI',8),fill=self.theme['ink'],tags='bubble')
+            return
         hint=self.scene_error or self.time_error or (self.message if self.notice_until>time.monotonic() else '')
         if not hint and mode in ('dig','water','fertilize','harvest','archive'):
             hint={'dig':'正在播种','water':'正在浇水','fertilize':'正在施肥','harvest':'正在收获','archive':'正在收藏'}[mode]
@@ -138,7 +146,12 @@ class GardenScene(DesktopPet):
     def animate(self):
         now=time.monotonic();dt=now-self.last_frame;self.last_frame=now;self.frame+=1
         inspecting=(self.plant_window and self.plant_window.window.winfo_exists()) or (self.journal and self.journal.window.winfo_exists())
-        if not self.card_open and not inspecting:
+        inspecting=inspecting or (self.snack_panel and self.snack_panel.window.winfo_exists())
+        interacting=now<self.interaction_until
+        if not interacting and not inspecting and not self.card_open and self.brain.mode=='rest' and now>=self.next_idle and (self.settings.get('compact') or not (self.proposal and self.auto_enabled)):
+            action=('look','stretch','sleep')[self.idle_turn%3];self.idle_turn+=1
+            self.react(action,8 if action=='sleep' else 3);interacting=True
+        if not self.card_open and not inspecting and not interacting and not self.settings.get('compact'):
             plan=self.brain.advance(dt,self.proposal if self.auto_enabled else None)
             if plan:
                 try:
@@ -181,6 +194,9 @@ class GardenScene(DesktopPet):
         for tag in tags:
             if tag.startswith('plant') and tag[5:].isdigit():
                 self.show_plant(int(tag[5:]));return
+        if 'avatar' in tags:
+            self.react('petting',2.5)
+            if self.settings.get('compact'):self.render();return
         self.card_open=not self.card_open if 'avatar' in tags else False
         self.render()
 
@@ -208,7 +224,9 @@ class GardenScene(DesktopPet):
 
     def settings_dialog(self):self.panel('style')
 
-    def show_card(self):self.card_open=True;self.render()
+    def show_card(self):
+        if self.settings.get('compact'):self.toggle_compact()
+        self.card_open=True;self.render()
 
     def open_garden(self):self.root.deiconify();self.root.lift()
 
@@ -218,3 +236,30 @@ class GardenScene(DesktopPet):
         from plant_card import PlantCard
         if self.plant_window and self.plant_window.window.winfo_exists():self.plant_window.window.destroy()
         self.card_open=False;self.plant_window=PlantCard(self,plant);self.render()
+
+    def react(self,action,duration):
+        if self.interaction=='eat' and time.monotonic()<self.interaction_until:return
+        self.interaction=action;self.interaction_start=time.monotonic()
+        self.interaction_until=self.interaction_start+duration;self.next_idle=self.interaction_until+18
+
+    def toggle_compact(self):
+        self.settings['compact']=not self.settings.get('compact',False)
+        self.card_open=False
+        self.brain.cancel_work();self.proposal=None
+        for panel in (self.journal,self.plant_window,self.snack_panel):
+            if panel and panel.window.winfo_exists():panel.window.destroy()
+        self.layout();self.remember()
+
+    def feed_menu(self):
+        from garden_ui import SnackPanel
+        if self.snack_panel and self.snack_panel.window.winfo_exists():self.snack_panel.window.lift();return
+        self.snack_panel=SnackPanel(self)
+
+    def feed_snack(self,species):
+        if time.monotonic()<self.interaction_until and self.interaction=='eat':return False
+        try:
+            with closing(sqlite3.connect((self.directory/'pet.sqlite3').resolve().as_uri()+'?mode=rw',uri=True,timeout=.2)) as db:
+                if not garden.feed(db,species):return False
+                self.scene=garden.snapshot(db)
+        except (sqlite3.Error,OSError,ValueError):return False
+        self.card_open=False;self.react('eat',4);self.render();return True

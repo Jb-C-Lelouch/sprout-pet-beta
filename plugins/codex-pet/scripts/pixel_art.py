@@ -99,7 +99,14 @@ class PixelArt:
     def pet_frame(self,mode,elapsed,theme,left,level,pet='sprout'):
         pack=self.content.pets[pet];form=self.content.pet_form(level,pet)
         visual=form.get('visual',pack['visual'])
-        action='sleep' if mode=='rest' and elapsed>2 else mode
+        if mode in ('petting','eat','stretch','look') and visual['kind']=='procedural':
+            frame=int(elapsed*6)%8
+            key=('companion',form['id'],mode,frame,theme,left)
+            if key not in self.cache:
+                self.cache[key]=pet_pixels(mode,frame,theme,form['rank']).photo(self.master,flip=not left,scale=visual['scale'])
+            return self.cache[key],tuple(n*visual['scale'] for n in visual['anchor'])
+        if mode in ('petting','eat','stretch','look'):mode='rest'
+        action=mode
         animation=visual['actions'][action]
         index=int(elapsed*1000/animation['frame_ms'])
         index=index%len(animation['frames']) if animation['loop'] else min(index,len(animation['frames'])-1)

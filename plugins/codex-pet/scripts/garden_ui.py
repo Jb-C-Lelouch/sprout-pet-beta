@@ -179,11 +179,34 @@ class GardenPanel(Surface):
 
 class GardenMenu(Surface):
     def __init__(self,app,x,y):
-        super().__init__(app,236,342,'小芽 · 花园菜单');self.base()
-        self.window.geometry(f'236x342+{max(0,min(x,self.window.winfo_screenwidth()-236))}+{max(0,min(y,self.window.winfo_screenheight()-342))}')
+        super().__init__(app,236,430,'小芽 · 花园菜单');self.base()
+        self.window.geometry(f'236x430+{max(0,min(x,self.window.winfo_screenwidth()-236))}+{max(0,min(y,self.window.winfo_screenheight()-430))}')
         self.text(20,27,'花园里的小事',12)
         rows=[('看看小芽',app.show_card),('成长足迹',app.growth_details),('花园装扮',app.settings_dialog),('暂停自动照料' if app.auto_enabled else '恢复自动照料',app.toggle_auto),('取消置顶' if app.settings['topmost'] else '置顶花园',app.pin),('退出花园',app.close)]
-        for i,(name,fn) in enumerate(rows):self.button(16,53+i*44,196,name,lambda f=fn:self.call(f))
+        rows[1:1]=[(choose(app,'摸摸头','Pet Xiaoya'),lambda:app.react('petting',2.5)),(choose(app,'收获投喂','Give a snack'),app.feed_menu),(choose(app,'展开花园' if app.settings.get('compact') else '迷你桌宠','Open garden' if app.settings.get('compact') else 'Mini pet'),app.toggle_compact)]
+        for i,(name,fn) in enumerate(rows):self.button(16,53+i*40,196,name,lambda f=fn:self.call(f))
         self.window.focus_force();self.window.bind('<FocusOut>',lambda e:self.window.destroy() if self.window.winfo_exists() else None)
 
     def call(self,fn):self.window.destroy();fn()
+
+
+class SnackPanel(Surface):
+    def __init__(self,app):
+        super().__init__(app,300,330,choose(app,'收获投喂','Harvest snacks'));self.draw()
+
+    def draw(self,message=''):
+        self.c.delete('all');self.actions.clear();self.base()
+        self.text(20,28,choose(self.app,'给小芽一份零食','A snack for Xiaoya'),13)
+        self.text(20,56,choose(self.app,'消耗 1 份收获，不影响成长数值','Uses 1 harvest; no growth bonus'),9)
+        inventory=(self.app.scene or {}).get('inventory',{})
+        crops=[s for s,n in inventory.items() if n>0 and s in garden.PLANTS and garden.catalog().plants[s]['zone']=='crops']
+        if not crops:self.text(20,100,choose(self.app,'收获蔬菜后就能投喂了','Harvest crops to unlock snacks.'),10)
+        for i,species in enumerate(crops):
+            caption=f"{botany.name(species,self.app.settings['language'])} × {inventory[species]}"
+            self.button(20,80+i*40,260,caption,lambda s=species:self.give(s))
+        if message:self.text(20,265,message,9)
+        self.button(20,285,260,choose(self.app,'收起','Close'),self.window.destroy)
+
+    def give(self,species):
+        if self.app.feed_snack(species):self.window.destroy()
+        else:self.draw(choose(self.app,'正在吃或库存已变，请稍后再试','Busy or stock changed. Try again.'))
