@@ -5,6 +5,8 @@ import sqlite3
 from contextlib import closing
 import garden
 import botany
+import memories
+from datetime import datetime
 from i18n import tr,choose
 
 
@@ -68,14 +70,15 @@ class Surface:
 class GardenPanel(Surface):
     def __init__(self,app,page='growth'):
         super().__init__(app,520,620,'小芽 · 花园手记')
-        self.page=page;self.note='';self.data=None;self.collection_page=0;self.garden=None
+        self.page=page;self.note='';self.data=None;self.collection_page=0;self.garden=None;self.memory_page=0;self.memories=[]
         self.reload();self.render()
 
     def reload(self):
         from desktop import read_status
         try:
             self.data=read_status(self.app.directory)
-            with closing(sqlite3.connect((self.app.directory/'pet.sqlite3').resolve().as_uri()+'?mode=ro',uri=True)) as db:self.garden=garden.snapshot(db)
+            with closing(sqlite3.connect((self.app.directory/'pet.sqlite3').resolve().as_uri()+'?mode=ro',uri=True)) as db:
+                self.garden=garden.snapshot(db);self.memories=memories.entries(db)
         except (sqlite3.Error,OSError,ValueError):self.note='暂时读不到记录，请稍后重新打开。'
 
     def tab(self,page):self.page=page;self.note='';self.reload();self.render()
@@ -87,12 +90,13 @@ class GardenPanel(Surface):
         self.button(461,19,29,'×',self.window.destroy,h=29)
         self.c.create_oval(396,34,417,47,fill=self.p['leaf'],outline='')
         self.c.create_oval(416,23,433,40,fill=self.p['accent'],outline='')
-        for i,(key,title) in enumerate([('growth','成长足迹'),('collection','植物收藏'),('style','花园装扮')]):
-            self.button(26+i*156,85,144,title,lambda k=key:self.tab(k),self.page==key)
+        for i,(key,title) in enumerate([('growth','成长足迹'),('collection','植物收藏'),('memories',choose(self.app,'成长纪念','Memories')),('style','花园装扮')]):
+            self.button(26+i*117,85,109,title,lambda k=key:self.tab(k),self.page==key)
         if self.page=='style':self.style_page()
         elif not self.data:self.text(28,165,self.note or '还没有可显示的记录。')
         elif self.page=='growth':self.growth_page()
         elif self.page=='collection':self.collection_view()
+        elif self.page=='memories':self.memory_view()
         if self.note:self.text(28,589,self.note,9,self.p['muted'],width=458)
 
     def growth_page(self):
@@ -108,7 +112,43 @@ class GardenPanel(Surface):
         rounded(self.c,26,433,454,127,self.p['soft'],16)
         for i,line in enumerate(['陪伴 +6经验/小时 · 离线 +3经验/小时，最多12小时','每1000 token补充1精力，上限100；不再直接加经验','浇水4精力 · 施肥10精力，单株最多加速半程','播种6精力 · 收获4精力，照料间隔至少1分钟']):self.text(44,453+i*24,line,9)
         total=sum((self.garden or {}).get('inventory',{}).values())
-        self.text(44,549,choose(self.app,f'累计收获 {total} 株 · 明细见植物收藏',f'Total harvested: {total} · Details in Collection'),9)
+        self.text(44,549,choose(self.app,f'收获库存 {total} 份 · 明细见植物收藏',f'Harvest stock: {total} · Details in Collection'),9)
+
+    def memory_view(self):
+        self.memory_images=[]
+        self.text(28,150,choose(self.app,'把花园的小小第一次，留在这里。','Little firsts, kept in your garden.'),12)
+        pages=max(1,(len(self.memories)+3)//4);self.memory_page=min(self.memory_page,pages-1)
+        if not self.memories:
+            self.text(28,208,choose(self.app,'第一株植物成熟时，故事就开始了。','Your story begins when a plant matures.'),10)
+        for i,item in enumerate(self.memories[self.memory_page*4:self.memory_page*4+4]):
+            y=181+i*83;rounded(self.c,26,y,458,75,self.p['surface'],13)
+            kind=item['kind'];subject=item['subject']
+            if kind=='visitor':
+                name={'butterfly':choose(self.app,'蝴蝶','Butterfly'),'sparrow':choose(self.app,'麻雀','Sparrow')}.get(subject,subject)
+                title=choose(self.app,'新访客：','New visitor: ')+name
+                image=self.app.pixel_art.butterfly(0) if subject=='butterfly' else self.app.pixel_art.sparrow(0)
+            else:
+                name=botany.name(subject,self.app.settings['language'])
+                labels={'mature':('首次成熟：','First maturity: '),'harvest':('首次收获：','First harvest: '),'feed':('首次分享零食：','First snack: ')}
+                zh,en=labels[kind]
+                if kind=='mature' and garden.catalog().plants[subject]['zone']=='garden':zh,en='首次开花：','First bloom: '
+                title=choose(self.app,zh,en)+name
+                image=self.app.pixel_art.plant(subject,1)
+            # Keep full native sprites inside each journal row, without stretching.
+            thumb=image.subsample(2) if image.height()>60 else image
+            if not hasattr(self,'memory_images'):self.memory_images=[]
+            self.memory_images.append(thumb)
+            self.c.create_image(62,y+37,image=thumb)
+            self.text(98,y+27,title,10)
+            stamp=choose(self.app,'此前已达成 · 日期未知','Previously achieved · date unknown') if item['observed'] is None else choose(self.app,'记录于 ','Recorded ')+datetime.fromtimestamp(item['observed']).strftime('%Y-%m-%d %H:%M')
+            self.text(98,y+53,stamp,9,self.p['muted'])
+        self.text(260,535,f'{self.memory_page+1} / {pages}',10,anchor='center')
+        self.button(26,517,110,choose(self.app,'上一页','Previous'),lambda:self.memory_turn(-1))
+        self.button(374,517,110,choose(self.app,'下一页','Next'),lambda:self.memory_turn(1))
+        self.text(28,575,choose(self.app,'记录发现时刻；旧存档不补写未知日期。','Dates mark discovery; older dates remain unknown.'),9,self.p['muted'])
+
+    def memory_turn(self,delta):
+        self.memory_page=max(0,min(max(0,(len(self.memories)-1)//4),self.memory_page+delta));self.render()
 
     def style_page(self):
         self.text(28,151,'为小芽和花园手记，换一种配色。',12)
@@ -179,11 +219,11 @@ class GardenPanel(Surface):
 
 class GardenMenu(Surface):
     def __init__(self,app,x,y):
-        super().__init__(app,236,430,'小芽 · 花园菜单');self.base()
-        self.window.geometry(f'236x430+{max(0,min(x,self.window.winfo_screenwidth()-236))}+{max(0,min(y,self.window.winfo_screenheight()-430))}')
+        super().__init__(app,236,470,'小芽 · 花园菜单');self.base()
+        self.window.geometry(f'236x470+{max(0,min(x,self.window.winfo_screenwidth()-236))}+{max(0,min(y,self.window.winfo_screenheight()-470))}')
         self.text(20,27,'花园里的小事',12)
         rows=[('看看小芽',app.show_card),('成长足迹',app.growth_details),('花园装扮',app.settings_dialog),('暂停自动照料' if app.auto_enabled else '恢复自动照料',app.toggle_auto),('取消置顶' if app.settings['topmost'] else '置顶花园',app.pin),('退出花园',app.close)]
-        rows[1:1]=[(choose(app,'摸摸头','Pet Xiaoya'),lambda:app.react('petting',2.5)),(choose(app,'收获投喂','Give a snack'),app.feed_menu),(choose(app,'展开花园' if app.settings.get('compact') else '迷你桌宠','Open garden' if app.settings.get('compact') else 'Mini pet'),app.toggle_compact)]
+        rows[1:1]=[(choose(app,'布置花园','Arrange garden'),app.toggle_arrange),(choose(app,'摸摸头','Pet Xiaoya'),lambda:app.react('petting',2.5)),(choose(app,'收获投喂','Give a snack'),app.feed_menu),(choose(app,'展开花园' if app.settings.get('compact') else '迷你桌宠','Open garden' if app.settings.get('compact') else 'Mini pet'),app.toggle_compact)]
         for i,(name,fn) in enumerate(rows):self.button(16,53+i*40,196,name,lambda f=fn:self.call(f))
         self.window.focus_force();self.window.bind('<FocusOut>',lambda e:self.window.destroy() if self.window.winfo_exists() else None)
 

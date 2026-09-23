@@ -49,6 +49,8 @@ def preferences(directory):
         if data.get('language') in ('zh','en'):value['language']=data['language']
         for key in ('topmost','compact'):
             if type(data.get(key)) is bool: value[key]=data[key]
+        from arrangement import clean_decor
+        if 'decorations' in data:value['decorations']=clean_decor(data['decorations'])
         if isinstance(data.get('avatar'),str): value['avatar']=data['avatar']
         for key in ('x','y'):
             if type(data.get(key)) is int: value[key]=data[key]

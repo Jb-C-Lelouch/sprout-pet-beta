@@ -37,6 +37,8 @@ def initialize(db):
         CREATE TABLE IF NOT EXISTS garden_display(plot INTEGER PRIMARY KEY,since_online INTEGER NOT NULL,pinned INTEGER NOT NULL DEFAULT 0);
         CREATE TABLE IF NOT EXISTS garden_archive(id INTEGER PRIMARY KEY AUTOINCREMENT,species TEXT NOT NULL,age INTEGER NOT NULL,bonus INTEGER NOT NULL,fertilized INTEGER NOT NULL);
         CREATE TABLE IF NOT EXISTS garden_events(id INTEGER PRIMARY KEY AUTOINCREMENT,action TEXT NOT NULL,species TEXT NOT NULL);''')
+    import memories
+    memories.initialize(db)
     with db:
         db.execute('INSERT OR IGNORE INTO garden_autonomy VALUES(1,1,?)',(growth.total_units(db),))
 
@@ -50,9 +52,14 @@ def sync(db):
     for species,start in db.execute('SELECT species,planted_xp-coalesce(bonus,0) FROM garden_plots LEFT JOIN garden_care USING(plot)'):
         if species in PLANTS and xp-start>=PLANTS[species]['xp']*growth.UNIT:
             db.execute("INSERT OR IGNORE INTO garden_collection VALUES('plant',?)",(species,))
+            import memories
+            memories.record(db,'mature',species)
     count=db.execute("SELECT count(*) FROM garden_collection WHERE kind='plant'").fetchone()[0]
     for key,visitor in VISITORS.items():
-        if count>=visitor['species']:db.execute("INSERT OR IGNORE INTO garden_collection VALUES('visitor',?)",(key,))
+        if count>=visitor['species']:
+            db.execute("INSERT OR IGNORE INTO garden_collection VALUES('visitor',?)",(key,))
+            import memories
+            memories.record(db,'visitor',key)
 
 
 def snapshot(db):
@@ -214,6 +221,9 @@ def draw_species(db,plot):
 
 
 def log_event(db,action,species):
+    if action in ('harvest','feed'):
+        import memories
+        memories.record(db,action,species)
     db.execute('INSERT INTO garden_events(action,species) VALUES(?,?)',(action,species))
     db.execute('DELETE FROM garden_events WHERE id<=(SELECT max(id)-20 FROM garden_events)')
 

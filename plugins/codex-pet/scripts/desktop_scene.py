@@ -12,11 +12,13 @@ import botany
 from i18n import tr,choose
 from garden_motion import Gardener,SPOTS
 from pixel_art import PixelArt
+from arrangement import Arrangement
 from garden_ui import rounded,GardenPanel,GardenMenu
 
 
-class GardenScene(DesktopPet):
+class GardenScene(Arrangement,DesktopPet):
     def __init__(self,root,directory):
+        self.arranging=False;self.arrange_selected=None;self.arrange_note='';self.decor_images={}
         self.interaction=None;self.interaction_start=0.;self.interaction_until=0.;self.next_idle=time.monotonic()+15;self.idle_turn=0;self.snack_panel=None
         self.brain=Gardener();self.scene=None;self.proposal=None;self.auto_enabled=True
         self.card_open=False;self.last_frame=time.monotonic();self.small_image=None;self.image_source=None
@@ -61,11 +63,13 @@ class GardenScene(DesktopPet):
         for x,y,title in [(123,166,'花园'),(402,294,'菜畦')]:
             c.create_rectangle(x-26,y-9,x+26,y+9,fill='#82623e',outline='#51462d',tags='landscape')
             c.create_text(x,y,text=tr(title,self.settings['language']),font=('Microsoft YaHei UI',9),fill='#ffedc8',tags='landscape')
+        self.draw_decorations()
         if self.scene:
             for plant in sorted(self.scene['plots'],key=lambda p:SPOTS[p['plot']][1]):
                 if plant['species']:self.draw_plant(plant)
         self.draw_pet()
         if self.card_open:self.draw_card()
+        if self.arranging:self.draw_arrange()
 
     def draw_plant(self,p):
         x,y=SPOTS[p['plot']]
@@ -111,10 +115,11 @@ class GardenScene(DesktopPet):
         if not hint and mode in ('dig','water','fertilize','harvest','archive'):
             hint={'dig':'正在播种','water':'正在浇水','fertilize':'正在施肥','harvest':'正在收获','archive':'正在收藏'}[mode]
         if not hint and time.monotonic()<self.hint_until:hint='点点小芽，看看它的成长'
-        if hint and not self.card_open:
+        if hint and not self.card_open and not self.arranging:
             rounded(c,x-118,py-120,236,38,self.theme['bg'],12,'bubble')
             c.create_text(x,py-101,text=tr(hint,self.settings['language']),width=224,font=('Microsoft YaHei UI',9),fill=self.theme['ink'],tags='bubble')
         c.tag_raise('card')
+        if self.arranging:c.tag_raise('layout')
 
     def draw_card(self):
         c=self.canvas;c.delete('card')
@@ -146,7 +151,7 @@ class GardenScene(DesktopPet):
     def animate(self):
         now=time.monotonic();dt=now-self.last_frame;self.last_frame=now;self.frame+=1
         inspecting=(self.plant_window and self.plant_window.window.winfo_exists()) or (self.journal and self.journal.window.winfo_exists())
-        inspecting=inspecting or (self.snack_panel and self.snack_panel.window.winfo_exists())
+        inspecting=self.arranging or inspecting or (self.snack_panel and self.snack_panel.window.winfo_exists())
         interacting=now<self.interaction_until
         if not interacting and not inspecting and not self.card_open and self.brain.mode=='rest' and now>=self.next_idle and (self.settings.get('compact') or not (self.proposal and self.auto_enabled)):
             action=('look','stretch','sleep')[self.idle_turn%3];self.idle_turn+=1
@@ -187,6 +192,9 @@ class GardenScene(DesktopPet):
     def release(self,event):
         if not self.drag:return
         sx,sy,x,y,tags=self.drag;self.drag=None
+        if self.arranging:
+            if abs(event.x_root-sx)+abs(event.y_root-sy)<=5:self.arrange_click(event,tags)
+            return
         if abs(event.x_root-sx)+abs(event.y_root-sy)>5:self.remember();return
         if 'card-style' in tags:self.settings_dialog();return
         if 'card-growth' in tags:self.growth_details();return
@@ -200,7 +208,11 @@ class GardenScene(DesktopPet):
         self.card_open=not self.card_open if 'avatar' in tags else False
         self.render()
 
+    def motion(self,event):
+        if not self.arranging:super().motion(event)
+
     def escape(self,event=None):
+        if self.arranging:self.toggle_arrange();return
         self.card_open=False;self.render()
 
     def toggle_auto(self):
@@ -243,6 +255,7 @@ class GardenScene(DesktopPet):
         self.interaction_until=self.interaction_start+duration;self.next_idle=self.interaction_until+18
 
     def toggle_compact(self):
+        self.arranging=False;self.arrange_selected=None
         self.settings['compact']=not self.settings.get('compact',False)
         self.card_open=False
         self.brain.cancel_work();self.proposal=None

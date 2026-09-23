@@ -4,7 +4,7 @@
 
 A quiet pixel garden that grows alongside your work in Codex.
 
-**Windows Beta · 0.1.0-beta.5**
+**Windows Beta · 0.1.0-beta.6**
 
 **English** · [简体中文](README.zh-CN.md)
 
@@ -14,6 +14,8 @@ Sprout Pet is a local Codex plugin with a desktop garden and a round little comp
 
 ## Main features
 
+- **Permanent memories.** Keep illustrated first blooms, harvests, snacks and visitor discoveries; legacy achievements retain unknown dates.
+- **Arrange your garden.** Select a plant and a destination within its area to move or swap it without losing growth. Place a cozy nest, lantern and planter on open lawn; decorations are free and cosmetic.
 - **Companion interactions.** Pet Xiaoya, watch idle stretches and naps, and feed one harvested crop for a snack animation. Switch to a small draggable pet using the right-click menu; time growth continues while automatic gardening pauses.
 - **A living pixel garden.** Ornamental plants, a vegetable patch and a meadow share one continuous 2D scene. Your pet walks to plants and animates its gardening actions.
 - **Idle and offline growth.** Earn 6 XP per hour with the desktop garden running, or 3 XP per offline hour for up to 12 hours per absence. The current level cap is 30, with four visual stages.
