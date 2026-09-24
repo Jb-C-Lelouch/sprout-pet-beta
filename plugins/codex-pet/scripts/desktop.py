@@ -85,6 +85,12 @@ class DesktopPet:
         self.notice_until=0
         self.spark_until=0
         root.title('小芽 · Codex Pet')
+        icon_dir=Path(__file__).resolve().parents[1]/'assets/icons'
+        try:
+            self.window_icon=tk.PhotoImage(master=root,file=str(icon_dir/'sprout-64.png'))
+            root.iconphoto(True,self.window_icon)
+            if os.name=='nt':root.iconbitmap(str(icon_dir/'sprout.ico'))
+        except (tk.TclError,OSError):pass
         root.overrideredirect(True)
         root.attributes('-topmost',self.settings['topmost'])
         root.protocol('WM_DELETE_WINDOW',self.close)

@@ -1,6 +1,6 @@
 {
   "name": "codex-pet",
-  "version": "0.1.0-beta.6",
+  "version": "0.1.0-beta.7",
   "description": "A local desktop garden with time growth, token energy and educational plants.",
   "author": {
     "name": "Jb-C-Lelouch"
@@ -13,6 +13,7 @@
     "developerName": "Jb-C-Lelouch",
     "category": "Productivity",
     "capabilities": [],
-    "defaultPrompt": "查看我的 Codex 宠物"
+    "defaultPrompt": "查看我的 Codex 宠物",
+    "composerIcon": "./assets/icons/sprout-128.png"
   }
 }

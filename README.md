@@ -4,7 +4,7 @@
 
 A quiet pixel garden that grows alongside your work in Codex.
 
-**Windows Beta · 0.1.0-beta.6**
+**Windows Beta · 0.1.0-beta.7**
 
 **English** · [简体中文](README.zh-CN.md)
 

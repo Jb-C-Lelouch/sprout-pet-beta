@@ -4,7 +4,7 @@
 
 一座陪你使用 Codex、随时间慢慢成长的像素桌面花园。
 
-**Windows 测试版 · 0.1.0-beta.6**
+**Windows 测试版 · 0.1.0-beta.7**
 
 [English](README.md) · **简体中文**
 
