@@ -93,7 +93,7 @@ class GardenScene(Arrangement,DesktopPet):
                 self.image_source=self.image;self.small_image=self.image.subsample(2)
             c.create_image(x,py-5,image=self.small_image,tags='avatar')
         else:
-            left=self.brain.target[0]<x if mode=='walk' else True
+            left=self.brain.target[0]<x if mode=='walk' else self.brain.facing_left if self.brain.visit else True
             level=self.data['level'] if self.data else 1
             sprite,(ax,ay)=self.pixel_art.pet_frame(mode,time.monotonic()-self.interaction_start if active else self.brain.elapsed,self.settings['theme'],left,level)
             c.create_image(round(x/2)*2-ax,round(y/2)*2-ay,image=sprite,anchor='nw',tags='avatar')
@@ -153,11 +153,11 @@ class GardenScene(Arrangement,DesktopPet):
         inspecting=(self.plant_window and self.plant_window.window.winfo_exists()) or (self.journal and self.journal.window.winfo_exists())
         inspecting=self.arranging or inspecting or (self.snack_panel and self.snack_panel.window.winfo_exists())
         interacting=now<self.interaction_until
-        if not interacting and not inspecting and not self.card_open and self.brain.mode=='rest' and now>=self.next_idle and (self.settings.get('compact') or not (self.proposal and self.auto_enabled)):
+        if not interacting and not inspecting and not self.card_open and self.brain.mode=='rest' and not (self.settings.get('decorations') and not self.settings.get('compact')) and now>=self.next_idle and (self.settings.get('compact') or not (self.proposal and self.auto_enabled)):
             action=('look','stretch','sleep')[self.idle_turn%3];self.idle_turn+=1
             self.react(action,8 if action=='sleep' else 3);interacting=True
         if not self.card_open and not inspecting and not interacting and not self.settings.get('compact'):
-            plan=self.brain.advance(dt,self.proposal if self.auto_enabled else None)
+            plan=self.brain.advance(dt,self.proposal if self.auto_enabled else None,self.settings.get('decorations',{}))
             if plan:
                 try:
                     with closing(sqlite3.connect((self.directory/'pet.sqlite3').resolve().as_uri()+'?mode=rw',uri=True,timeout=.15)) as db:

@@ -4,7 +4,7 @@
 
 A quiet pixel garden that grows alongside your work in Codex.
 
-**Windows Beta · 0.1.0-beta.7**
+**Windows Beta · 0.1.0-beta.8**
 
 **English** · [简体中文](README.zh-CN.md)
 
@@ -14,6 +14,7 @@ Sprout Pet is a local Codex plugin with a desktop garden and a round little comp
 
 ## Main features
 
+- **Life around decorations.** Xiaoya visits placed props, naps beside its nest, stretches on waking and observes the lantern or planter. Garden work takes priority; visits cost no energy.
 - **Permanent memories.** Keep illustrated first blooms, harvests, snacks and visitor discoveries; legacy achievements retain unknown dates.
 - **Arrange your garden.** Select a plant and a destination within its area to move or swap it without losing growth. Place a cozy nest, lantern and planter on open lawn; decorations are free and cosmetic.
 - **Companion interactions.** Pet Xiaoya, watch idle stretches and naps, and feed one harvested crop for a snack animation. Switch to a small draggable pet using the right-click menu; time growth continues while automatic gardening pauses.
